@@ -1,8 +1,13 @@
-import http from 'http';
+import http, { IncomingMessage } from 'http';
 import app from './app';
 import databaseConnection from './database/connection';
 import { Server } from 'socket.io';
 import Room from './models/room.model';
+
+
+// Types to be moved to SOCKET controllers
+import { RoomType } from './types/Room';
+import { IncomingMessageType } from './types/IncommingMessage';
 
 const port = process.env.PORT || 3001;
 const server = http.createServer(app);
@@ -21,21 +26,18 @@ const io = new Server(server, {
 io.on('connection', socket => {
 
     // broadcast a message to the room
-    socket.on('incomingMessage', data => {
+    socket.on('incomingMessage', (data: IncomingMessageType) => {
         console.log(data)   
-        io.to(data.roomMongoDBObjectId).emit('new_message', data.message);
+        io.to(data.roomMongoDBObjectId).emit('new_message', {
+            message:    data.message,
+            author:     data.author
+        });
     });
 
 
     // create a room
     socket.on('create_room', async data => {
-        type RoomType = {
-            roomName:       string,
-            author:         string,
-            users?:         string[],
-            privateRoom:    boolean,
-            maxUsers:       number
-        };
+        
         
         const room: RoomType = {
             roomName:       data.roomName || 'Room name',
