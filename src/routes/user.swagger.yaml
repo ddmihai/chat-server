@@ -1,0 +1,72 @@
+# User setup...
+paths:
+  /api/user:
+    post:
+      tags:
+        - Users
+      summary: Signup user. Create an account for the Chat application
+      description: 'User is prompted to create an account for the application. User is required to use an unique email for the account.'
+      operationId: createUser
+      requestBody:
+        description: Fill all the fields and use a POST request /api/user to create a user.
+        content: 
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/UserSchema'
+            required: true
+      responses:
+        '201': 
+          description: User created successfully
+        '400':
+          description: Invalid parameters provided. Zod validator responses
+        '500':
+          description: Something went wrong with the server. Or email duplicate error
+  /api/login:
+    post:
+      tags:
+        - Users
+      summary: User login with unique email and password.
+      description: >
+        Use email and password to login. Query database with email.
+        If found a user, compare with bcrypt the hashed password, and input password.
+        If successful, the API will send back a Login successful string and 200 status.
+      operationId: loginUser
+      requestBody:
+        description: Use the user email and password to login. 
+        content: 
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  description: user email that will be loggedin
+                  example: user@gmail.com 
+                password:
+                  type: string 
+                  description: password 
+                  example: MyPassword
+      responses:
+        '200': 
+          description: Returns JSON with a message key 'Login successful'
+        '404':
+          description: Returns JSON with a message key 'Invalid credentials'
+        '500': 
+          description: Returns JSON with details of error. Internal server code error.
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error while login user 
+                  refference:
+                    type: string
+                    example: login.controller.ts OR a pointer/path of the file the error is
+                  error:
+                    type: object
+                    example: Error object thrown 

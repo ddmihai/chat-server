@@ -1,0 +1,26 @@
+components:
+  schemas:
+    UserSchema:
+      type: object
+      required:
+        - email
+        - firstName
+        - lastName
+        - password
+      properties:
+        email:
+          type: string
+          description: Unique email required to create an account 
+          example: daniel@gmail.com
+        firstName:
+          type: string
+          description: first name 
+          example: Daniel
+        lastName:
+          type: string
+          description: last name 
+          example: Michael
+        password:
+          type: string
+          description: password will be hashed 
+          example: MyPassword
