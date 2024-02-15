@@ -8,6 +8,9 @@ import Room from './models/room.model';
 // Types to be moved to SOCKET controllers
 import { RoomType } from './types/Room';
 import { IncomingMessageType } from './types/IncommingMessage';
+import { IncommingMessageController } from './controller/chats/incommingMessage';
+
+
 
 const port = process.env.PORT || 3001;
 const server = http.createServer(app);
@@ -26,13 +29,7 @@ const io = new Server(server, {
 io.on('connection', socket => {
 
     // broadcast a message to the room
-    socket.on('incomingMessage', (data: IncomingMessageType) => {
-        console.log(data)   
-        io.to(data.roomMongoDBObjectId).emit('new_message', {
-            message:    data.message,
-            author:     data.author
-        });
-    });
+    socket.on('incomingMessage', data => IncommingMessageController(data, io));
 
 
     // create a room
