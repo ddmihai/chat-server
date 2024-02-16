@@ -1,14 +1,14 @@
-import http, { IncomingMessage } from 'http';
+import http from 'http';
 import app from './app';
 import databaseConnection from './database/connection';
 import { Server } from 'socket.io';
-import Room from './models/room.model';
 
 
 // Types to be moved to SOCKET controllers
+import { IncommingMessageController } from './controller/chats/incommingMessage';
+import { createRoomController } from './controller/chats/create_room';
 import { RoomType } from './types/Room';
 import { IncomingMessageType } from './types/IncommingMessage';
-import { IncommingMessageController } from './controller/chats/incommingMessage';
 
 
 
@@ -29,26 +29,11 @@ const io = new Server(server, {
 io.on('connection', socket => {
 
     // broadcast a message to the room
-    socket.on('incomingMessage', data => IncommingMessageController(data, io));
+    socket.on('incomingMessage', (data: IncomingMessageType) => IncommingMessageController(data, io));
 
 
     // create a room
-    socket.on('create_room', async data => {
-        
-        
-        const room: RoomType = {
-            roomName:       data.roomName || 'Room name',
-            author:         data.author,
-            users:          data.users,
-            privateRoom:    data.privateRoom,
-            maxUsers:       data.maxUsers
-        };
-
-        let newRoom = new Room(room);
-        await newRoom.save();
-
-        socket.emit('room_created', 'Room created');
-    });
+    socket.on('create_room', (data: RoomType) => createRoomController(data, socket));
 
 
 
