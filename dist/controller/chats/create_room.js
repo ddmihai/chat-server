@@ -39,52 +39,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var http_1 = __importDefault(require("http"));
-var app_1 = __importDefault(require("./app"));
-var connection_1 = __importDefault(require("./database/connection"));
-var socket_io_1 = require("socket.io");
-// Types to be moved to SOCKET controllers
-var incommingMessage_1 = require("./controller/chats/incommingMessage");
-var create_room_1 = require("./controller/chats/create_room");
-var port = process.env.PORT || 3001;
-var server = http_1.default.createServer(app_1.default);
-var io = new socket_io_1.Server(server, {
-    cors: {
-        origin: 'http://localhost:3000',
-        methods: ['GET', 'POST'],
-        credentials: true,
-    },
-});
-io.on('connection', function (socket) {
-    // broadcast a message to the room
-    socket.on('incomingMessage', function (data) { return (0, incommingMessage_1.IncommingMessageController)(data, io); });
-    // create a room
-    socket.on('create_room', function (data) { return (0, create_room_1.createRoomController)(data, socket); });
-    // join room
-    // socket.on('join_room', async data => {
-    //     let roomToJoin = await Room.findById(data.roomId);
-    //     if (roomToJoin) {
-    //     }
-    // })
-    socket.on('join_room', function (data) {
-        socket.emit('new_message', 'New user joinedds');
-        socket.join(data.roomMongoDBObjectId);
-    });
-});
-var startServer = function () { return __awaiter(void 0, void 0, void 0, function () {
+exports.createRoomController = void 0;
+var room_model_1 = __importDefault(require("../../models/room.model"));
+var createRoomController = function (data, socket) { return __awaiter(void 0, void 0, void 0, function () {
+    var room, newRoom;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                server.listen(port, function () {
-                    console.log('server online');
-                });
-                //connect to database
-                return [4 /*yield*/, (0, connection_1.default)()];
+                room = {
+                    roomName: data.roomName || 'Room name',
+                    author: data.author,
+                    users: data.users,
+                    privateRoom: data.privateRoom,
+                    maxUsers: data.maxUsers
+                };
+                newRoom = new room_model_1.default(room);
+                return [4 /*yield*/, newRoom.save()];
             case 1:
-                //connect to database
                 _a.sent();
+                socket.emit('room_created', {
+                    message: 'Room created'
+                });
                 return [2 /*return*/];
         }
     });
 }); };
-startServer();
+exports.createRoomController = createRoomController;
