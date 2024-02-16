@@ -30,7 +30,7 @@ io.on('connection', socket => {
 
     // broadcast a message to the room
     socket.on('incomingMessage', (data: IncomingMessageType) => IncommingMessageController(data, io));
-
+    
 
     // create a room
     socket.on('create_room', (data: RoomType) => createRoomController(data, socket));
@@ -38,15 +38,17 @@ io.on('connection', socket => {
 
 
 
+    // Socket middleware
+
     // join room
-    // socket.on('join_room', async data => {
-    //     let roomToJoin = await Room.findById(data.roomId);
-    //     if (roomToJoin) {
-            
-    //     }
-    // })
-    socket.on('join_room', (data) => {
-        socket.emit('new_message', 'New user joinedds')
+
+    type UserJoiningRoomData = {
+        roomMongoDBObjectId: string,
+        userJoining: string
+    }
+
+    socket.on('join_room', (data: UserJoiningRoomData) => {
+        console.log(data)
         socket.join(data.roomMongoDBObjectId);
     });
 

@@ -39,46 +39,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var http_1 = __importDefault(require("http"));
-var app_1 = __importDefault(require("./app"));
-var connection_1 = __importDefault(require("./database/connection"));
-var socket_io_1 = require("socket.io");
-// Types to be moved to SOCKET controllers
-var incommingMessage_1 = require("./controller/chats/incommingMessage");
-var create_room_1 = require("./controller/chats/create_room");
-var port = process.env.PORT || 3001;
-var server = http_1.default.createServer(app_1.default);
-var io = new socket_io_1.Server(server, {
-    cors: {
-        origin: 'http://localhost:3000',
-        methods: ['GET', 'POST'],
-        credentials: true,
-    },
-});
-io.on('connection', function (socket) {
-    // broadcast a message to the room
-    socket.on('incomingMessage', function (data) { return (0, incommingMessage_1.IncommingMessageController)(data, io); });
-    // create a room
-    socket.on('create_room', function (data) { return (0, create_room_1.createRoomController)(data, socket); });
-    socket.on('join_room', function (data) {
-        console.log(data);
-        socket.join(data.roomMongoDBObjectId);
-    });
-});
-var startServer = function () { return __awaiter(void 0, void 0, void 0, function () {
+exports.PushUserToRoomArray = void 0;
+var room_model_1 = __importDefault(require("../models/room.model"));
+var PushUserToRoomArray = function (roomId, userId) { return __awaiter(void 0, void 0, void 0, function () {
+    var error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                server.listen(port, function () {
-                    console.log('server online');
-                });
-                //connect to database
-                return [4 /*yield*/, (0, connection_1.default)()];
+                _a.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, room_model_1.default.findOneAndUpdate({ _id: roomId }, {
+                        "$push": {
+                            "users": userId
+                        }
+                    })];
             case 1:
-                //connect to database
                 _a.sent();
-                return [2 /*return*/];
+                return [3 /*break*/, 3];
+            case 2:
+                error_1 = _a.sent();
+                console.log(error_1);
+                throw error_1;
+            case 3: return [2 /*return*/];
         }
     });
 }); };
-startServer();
+exports.PushUserToRoomArray = PushUserToRoomArray;

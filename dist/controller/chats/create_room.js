@@ -41,22 +41,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createRoomController = void 0;
 var room_model_1 = __importDefault(require("../../models/room.model"));
+var pushUserToRoomArray_1 = require("../../helpers/pushUserToRoomArray");
 var createRoomController = function (data, socket) { return __awaiter(void 0, void 0, void 0, function () {
-    var room, newRoom;
+    var room, newRoom, createdRoom;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 room = {
                     roomName: data.roomName || 'Room name',
                     author: data.author,
-                    users: data.users,
                     privateRoom: data.privateRoom,
                     maxUsers: data.maxUsers
                 };
                 newRoom = new room_model_1.default(room);
                 return [4 /*yield*/, newRoom.save()];
             case 1:
-                _a.sent();
+                createdRoom = _a.sent();
+                if (createdRoom) {
+                    (0, pushUserToRoomArray_1.PushUserToRoomArray)(createdRoom._id, room.author);
+                }
                 socket.emit('room_created', {
                     message: 'Room created'
                 });
