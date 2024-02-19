@@ -9,6 +9,7 @@ import { IncommingMessageController } from './controller/chats/incommingMessage'
 import { createRoomController } from './controller/chats/create_room';
 import { RoomType } from './types/Room';
 import { IncomingMessageType } from './types/IncommingMessage';
+import Room from './models/room.model';
 
 
 
@@ -28,28 +29,41 @@ const io = new Server(server, {
 
 io.on('connection', socket => {
 
-    // broadcast a message to the room
-    socket.on('incomingMessage', (data: IncomingMessageType) => IncommingMessageController(data, io));
+    // broadcast a message to the rooms
+    socket.on('new_message', (data: IncomingMessageType) => IncommingMessageController(data, io));
     
-
+   
+ 
     // create a room
     socket.on('create_room', (data: RoomType) => createRoomController(data, socket));
 
 
 
+    //Find all rooms where the user is loggedin and included
+    socket.on('get_user_rooms', async data => {   
+        try {
+            let userRooms = await Room.find({ users: { "$in": [data] }});
+            socket.emit('user_rooms', userRooms);
+        } 
+        catch (error) {
+            console.log('Error', error);    
+        }
+    });
 
-    // Socket middleware
+
+
 
     // join room
-
     type UserJoiningRoomData = {
         roomMongoDBObjectId: string,
         userJoining: string
-    }
+    };
 
     socket.on('join_room', (data: UserJoiningRoomData) => {
-        console.log(data)
         socket.join(data.roomMongoDBObjectId);
+        socket.to(data.roomMongoDBObjectId).emit('new_message', { 
+            message: `${data.userJoining} just joined the chat`
+        });
     });
 
     

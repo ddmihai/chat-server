@@ -20,8 +20,6 @@ export const createRoomController = async (data: RoomType, socket: Socket) => {
         PushUserToRoomArray(createdRoom._id, room.author);
     }
 
-
-
     socket.emit('room_created', {
         message: 'Room created'
     });

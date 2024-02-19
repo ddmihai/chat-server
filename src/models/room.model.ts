@@ -24,7 +24,7 @@ const roomSchema = new mongoose.Schema({
     
     maxUsers: {
         type:   Number,
-        default: 2
+        default: 10
     }
 });
 
