@@ -1,15 +1,18 @@
 import Room from "../models/room.model";
+import User from "../models/user.model";
 
-export const PushUserToRoomArray = async (roomId: any, userId: any) => {
+export const PushUserToRoomArray = async (roomId: any, emailRequired: string) => {
     try {
-        await Room.findOneAndUpdate(
+        let userRequired = await User.findOne({ email: emailRequired });
+
+        userRequired && await Room.findOneAndUpdate(
             { _id: roomId },
             {
                "$push": {
-                   "users": userId
+                   "users": userRequired._id
                }
             }
-         )
+        );
     } 
     catch (error) {
         console.log(error);

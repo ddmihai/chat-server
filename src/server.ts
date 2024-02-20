@@ -10,6 +10,7 @@ import { createRoomController } from './controller/chats/create_room';
 import { RoomType } from './types/Room';
 import { IncomingMessageType } from './types/IncommingMessage';
 import Room from './models/room.model';
+import { PushUserToRoomArray } from './helpers/pushUserToRoomArray';
 
 
 
@@ -48,6 +49,15 @@ io.on('connection', socket => {
         catch (error) {
             console.log('Error', error);    
         }
+    });
+
+
+    // push user to room array
+    socket.on('invite_user', async data => {
+        await PushUserToRoomArray(data.roomid, data.emailRequired)
+        socket.emit('user_invited', {
+            message: 'User invited'
+        });
     });
 
 
